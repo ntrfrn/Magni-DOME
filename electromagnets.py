@@ -1,6 +1,7 @@
+## PROJECT: MAGNI DOME
 ## FILE NAME: electromagnets.py
-## VERSION: 1.0.0
-## LAST MODIFICATION: 28 MAR 2025
+## VERSION: 1.1.0
+## LAST MODIFICATION: 07 AUG 2025
 
 # local function for control
 import logging

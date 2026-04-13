@@ -1,6 +1,7 @@
+## PROJECT: MAGNI DOME
 ## FILE NAME: microscope.py
-## VERSION: 1.0.0
-## LAST MODIFICATION: 24 MAR 2025
+## VERSION: 1.1.0
+## LAST MODIFICATION: 13 APR 2026
 
 # local function for control
 import logging
@@ -9,18 +10,22 @@ import cv2
 from cv2 import VideoWriter
 from cv2 import VideoWriter_fourcc
 from picamera2 import Picamera2
+from libcamera import Transform
+from libcamera import controls
 
 # init local parameters for pi cam library
 picam2 = Picamera2()
-picam2.configure(picam2.create_preview_configuration(main={"size": (800, 600)}))
+camConfig = picam2.create_preview_configuration(main={"size": (800, 600)}, transform=Transform(vflip=True))
+picam2.configure(camConfig)
+
 
 # scalebar setup
-magnification = 10          # default : 10x
-if magnification == 10:     # calibrate scale bar
-    xLength = 72            # unit in pixel | horizontal length
-yLength = 10                # unit in pixel | vertical length
+magnification = 4           # default : 4x
+if magnification == 4:      # scale bar 100 um
+    xLength = 54            # unit in pixel | horizontal length
+yLength = 5                 # unit in pixel | vertical length
 xStart = 25                 # starting point on x-axis
-yStart = 450                # starting point on y-axis
+yStart = 575                # starting point on y-axis
 alpha = 0.2                 # opacity | low(brighter) | high(darker)
 scaleBar = np.ones((yLength, xLength, 3), dtype="uint8")*255    # create an overlay image
 
@@ -28,6 +33,16 @@ scaleBar = np.ones((yLength, xLength, 3), dtype="uint8")*255    # create an over
 def livePreview(stopRecord):
     logging.info("microscope.livePreview               : running")     # logging status
     picam2.start()      # starting camera  
+
+    # camera setting
+    picam2.set_controls({"ExposureValue": 0.5})     # adjust brightness [-8.0 to 8.0] (default 0.0)
+    picam2.set_controls({"Contrast": 1.5})          # adjust contrast [1.0 to 32.0]
+    picam2.set_controls({"Saturation": 0.0})        # turning to grayscale
+    #picam2.set_controls({"AwbMode": controls.AwbModeEnum.Indoor})   # adjust white balance 
+                                                                    # [Auto, Indoor, Tungsten, 
+                                                                    #  Fluorescent, Daylight, Cloudy]
+    #picam2.set_controls({"AwbEnable": False,
+    #                     "ColourGains": (1.2, 1.1)})    # (Red, Blue)
 
     # init video codec "MPV4" for .mp4 video
     fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
